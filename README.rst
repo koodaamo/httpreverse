@@ -30,20 +30,20 @@ An example templated API definition in YAML::
 
   templates:
 
-    getinfo:
-       request:
-          method: GET
-          path: /hotel/reservations
-       response:
-         type: application/json
-          parser: hotelapi.parseresponse
+    roomapi:
+      request:
+        method: GET
+        path: /hotel/reservations
+      response:
+        type: application/json
+        parser: hotelapi.parseresponse
 
   operations:
 
     list-singlerooms:
       label: List single room reservations
       description: List all reserved single rooms
-      template: getinfo
+      template: roomapi
       request:
         params:
           size: single
@@ -51,7 +51,7 @@ An example templated API definition in YAML::
     list-doublerooms:
       label: List double room reservations
       description: List all reserved double rooms
-      template: getinfo
+      template: roomapi
       request:
         params:
           size: double
@@ -75,7 +75,7 @@ operation for listing the rooms::
     list-rooms:
       label: List room reservations
       description: List reserved rooms
-      template: getinfo
+      template: roomapi
       request:
         params:
           size:
@@ -92,7 +92,7 @@ context is passed to Jinja. The above example could thus be written::
     list-rooms:
       label: List room reservations
       description: List reserved rooms
-      template: getinfo
+      template: roomapi
       request:
         params:
           size: {{roomsize}}
@@ -106,12 +106,14 @@ structures to the API. For example::
     add-reservation:
       label: Add reservation
       description: Add a room reservation
-      template: getinfo
+      template: roomapi
       request:
-        type: application/json
+        method: POST
         body: {{ {"size": roomsize, "customers": customers} }}
-          
+        type: application/json
+  
 The parser could then be called with a context that has both the room size and
-occupant names: `{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}`
+occupant names: `{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}`,
+to define a payload and have it encoded into JSON. XML is also supported.
 
 
