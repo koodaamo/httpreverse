@@ -24,10 +24,18 @@ what those legacy APIs do.
 
 This package is NOT meant for defining new APIs. Use e.g. Swagger for that.
 
-Example API definition in YAML::
+Why then not just use Swagger or some other such tool? They are really meant for
+creating new APIs from scratch and as such cater to a bit different use case.
+For example they tend to be geared toward the verbose. When reverse-engineering
+and documenting existing APIs, all the details are not that important. We just
+need to make it easy to use the APIs and be able to add an explanation of what
+they do, rather than documenting everything. The docs hopefully help to explain
+this.
 
-  label: Short name of the API
-  description: A description of the API
+An example templated API definition in YAML::
+
+  label: Hotel API
+  description: An API to check room reservations
 
   templates:
 
@@ -46,8 +54,8 @@ Example API definition in YAML::
       description: List all reserved single rooms
       template: getinfo
       request:
-         params:
-            size: single
+        params:
+          size: single
 
     list-doublerooms:
       label: List double room reservations
@@ -62,12 +70,58 @@ two API operations that only need to specify some descriptive metadata,
 the template to use, and any template overrides specific to the particular
 API; such as a API-specific request parameter (room size).
 
-Why not just use Swagger or some other such tool? They are really meant for
-creating new APIs from scratch and as such cater to a bit different use case.
-For example they tend to be geared toward the verbose. When reverse-engineering
-and documenting existing APIs, all the details are not that important. We just
-need to make it easy to use the APIs and be able to add an explanation of what
-they do, rather than documenting everything.
+Besides the template mechanism outlined here, the Regular YAML anchor/alias
+mechanism can of course be used as well.
+
+The API definition can also be parametrized: The API parser optionally
+accepts a context argument that is simply a dictionary that is mapped against
+all the parameter names found in the API templates or operations. So in the
+above example it would be possible to also have a single dynamically invoked
+operation for listing the rooms:
+
+  operations:
+
+    list-rooms:
+      label: List room reservations
+      description: List reserved rooms
+      template: getinfo
+      request:
+        params:
+          size:
+
+The API for single or double rooms would then be chosen at runtime by passing a
+context, either `{"size":"single"}` or `{"size": "double"}`. The parser would
+fill the room size into the API spec.
+
+Jinja2 templating can also be used anywhere within the YAML document. The same
+context is passed to Jinja. The above example could thus be written:
+ 
+  operations:
+
+    list-rooms:
+      label: List room reservations
+      description: List reserved rooms
+      template: getinfo
+      request:
+        params:
+          size: {{roomsize}}
+
+Assuming a context `{"roomsize":"single"}`, we'd then have an API for querying
+single rooms. Jinja templates can also be used to assign complex Python data
+structures to the API. For example:
+
+  operations:
+
+    add-reservation:
+      label: Add reservation
+      description: Add a room reservation
+      template: getinfo
+      request:
+        type: application/json
+        body: {{ {"size": roomsize, "customers": customers} }}
+          
+The parser could then be called with a context that has both the room size and
+occupant names: `{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}`
 
 * Free software: GNU General Public License v3
 * Documentation: https://httpreverse.readthedocs.io.
