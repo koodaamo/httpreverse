@@ -62,6 +62,13 @@ two API operations that only need to specify some descriptive metadata,
 the template to use, and any template overrides specific to the particular
 API; such as a API-specific request parameter (room size).
 
+Why not just use Swagger or some other such tool? They are really meant for
+creating new APIs from scratch and as such cater to a bit different use case.
+For example they tend to be geared toward the verbose. When reverse-engineering
+and documenting existing APIs, all the details are not that important. We just
+need to make it easy to use the APIs and be able to add an explanation of what
+they do, rather than documenting everything.
+
 * Free software: GNU General Public License v3
 * Documentation: https://httpreverse.readthedocs.io.
 
