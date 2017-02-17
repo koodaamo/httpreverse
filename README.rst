@@ -20,8 +20,8 @@ creating new APIs from scratch and as such cater to a bit different use case.
 For example they tend to be geared toward the verbose. When reverse-engineering
 and documenting existing APIs, all the details are not that important. We just
 need to make it easy to use the APIs and be able to add an explanation of what
-they do, rather than documenting everything. The docs hopefully help to explain
-this.
+they do, rather than documenting everything. The docs hopefully help to clarify
+the difference.
 
 An example templated API definition in YAML::
 
@@ -64,11 +64,12 @@ API; such as a API-specific request parameter (room size).
 Besides the template mechanism outlined here, the Regular YAML anchor/alias
 mechanism can of course be used as well.
 
-The API definition can also be parametrized: The API parser optionally
-accepts a context argument that is simply a dictionary that is mapped against
-all the parameter names found in the API templates or operations. So in the
-above example it would be possible to also have a single dynamically invoked
-operation for listing the rooms::
+To generate actual HTTP requests, the API definitions can be parametrized.
+For example, the API parser accepts an optional context argument that is
+simply a dictionary that is mapped against all the parameter names found in
+the API templates or operations. So in the above example it would be
+possible to also have a single dynamically invoked operation for listing
+the rooms::
 
   operations:
 
@@ -115,5 +116,4 @@ structures to the API. For example::
 The parser could then be called with a context that has both the room size and
 occupant names: `{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}`,
 to define a payload and have it encoded into JSON. XML is also supported.
-
 
