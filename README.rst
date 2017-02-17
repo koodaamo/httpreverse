@@ -24,6 +24,39 @@ what those legacy APIs do.
 
 This package is NOT meant for defining new APIs. Use e.g. Swagger for that.
 
+Example API definition in YAML::
+
+  label: Short name of the API
+  description: A description of the API
+
+  templates:
+
+    getinfo:
+       request:
+          method: GET
+          path: /hotel/reservations
+       response:
+         type: application/json
+          parser: hotelapi.parseresponse
+
+  operations:
+
+    list-singlerooms:
+      label: List single room reservations
+      description: List all reserved single rooms
+      template: getinfo
+      request:
+         params:
+            size: single
+
+    list-doublerooms:
+      label: List double room reservations
+      description: List all reserved double rooms
+      template: getinfo
+      request:
+        params:
+          size: double
+
 * Free software: GNU General Public License v3
 * Documentation: https://httpreverse.readthedocs.io.
 
