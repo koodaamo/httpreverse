@@ -57,6 +57,11 @@ Example API definition in YAML::
         params:
           size: double
 
+In the above example, a template is defined and then used to specify
+two API operations that only need to specify some descriptive metadata,
+the template to use, and any template overrides specific to the particular
+API; such as a API-specific request parameter (room size).
+
 * Free software: GNU General Public License v3
 * Documentation: https://httpreverse.readthedocs.io.
 
