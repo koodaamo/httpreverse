@@ -117,3 +117,6 @@ The parser could then be called with a context that has both the room size and
 occupant names: `{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}`,
 to define a payload and have it encoded into JSON. XML is also supported.
 
+Note that this package does NOT make HTTP requests using some client library.
+That is up to you; use something from the Python standard library, or the
+'requests' package, or something asynchronous, whatever.
