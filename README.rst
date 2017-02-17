@@ -6,15 +6,6 @@ httpreverse
 .. image:: https://img.shields.io/pypi/v/httpreverse.svg
         :target: https://pypi.python.org/pypi/httpreverse
 
-.. image:: https://readthedocs.org/projects/httpreverse/badge/?version=latest
-        :target: https://httpreverse.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
-
-.. image:: https://pyup.io/repos/github/petri/httpreverse/shield.svg
-     :target: https://pyup.io/repos/github/petri/httpreverse/
-     :alt: Updates
-
-
 Reverse-engineer legacy HTTP APIs.
 
 This package was born of a need to wrap a lot of different kinds of existing,
@@ -77,7 +68,7 @@ The API definition can also be parametrized: The API parser optionally
 accepts a context argument that is simply a dictionary that is mapped against
 all the parameter names found in the API templates or operations. So in the
 above example it would be possible to also have a single dynamically invoked
-operation for listing the rooms:
+operation for listing the rooms::
 
   operations:
 
@@ -94,7 +85,7 @@ context, either `{"size":"single"}` or `{"size": "double"}`. The parser would
 fill the room size into the API spec.
 
 Jinja2 templating can also be used anywhere within the YAML document. The same
-context is passed to Jinja. The above example could thus be written:
+context is passed to Jinja. The above example could thus be written::
  
   operations:
 
@@ -108,7 +99,7 @@ context is passed to Jinja. The above example could thus be written:
 
 Assuming a context `{"roomsize":"single"}`, we'd then have an API for querying
 single rooms. Jinja templates can also be used to assign complex Python data
-structures to the API. For example:
+structures to the API. For example::
 
   operations:
 
@@ -123,20 +114,4 @@ structures to the API. For example:
 The parser could then be called with a context that has both the room size and
 occupant names: `{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}`
 
-* Free software: GNU General Public License v3
-* Documentation: https://httpreverse.readthedocs.io.
-
-
-Features
---------
-
-* TODO
-
-Credits
----------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 
