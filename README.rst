@@ -6,9 +6,6 @@ httpreverse
 .. image:: https://img.shields.io/pypi/v/httpreverse.svg
         :target: https://pypi.python.org/pypi/httpreverse
 
-.. image:: https://img.shields.io/travis/petri/httpreverse.svg
-        :target: https://travis-ci.org/petri/httpreverse
-
 .. image:: https://readthedocs.org/projects/httpreverse/badge/?version=latest
         :target: https://httpreverse.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
