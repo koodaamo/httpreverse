@@ -9,7 +9,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ["pyaml", "jinja2"]
+requirements = ["pyaml", "jinja2", "xmltodict"]
 
 test_requirements = [
     # TODO: put package test requirements here
