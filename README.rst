@@ -8,6 +8,9 @@ httpreverse
 
 Reverse-engineer legacy HTTP APIs.
 
+Rationale and scope
+--------------------
+
 This package was born of a need to wrap a lot of different kinds of existing,
 undocumented legacy HTTP APIs not following any kind of consistent, well
 planned design, and to add a little bit of documentation to have some idea
@@ -22,6 +25,13 @@ and documenting existing APIs, all the details are not that important. We just
 need to make it easy to use the APIs and be able to add an explanation of what
 they do, rather than documenting everything. The docs hopefully help to clarify
 the difference.
+
+Note that this package does NOT make HTTP requests using some client library.
+That is up to you; use something from the Python standard library, or the
+'requests' package, or something asynchronous, whatever.
+
+Example uses
+-------------
 
 An example templated API definition in YAML::
 
@@ -116,7 +126,3 @@ structures to the API. For example::
 The parser could then be called with a context that has both the room size and
 occupant names: ``{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}``,
 to define a payload and have it encoded into JSON. XML is also supported.
-
-Note that this package does NOT make HTTP requests using some client library.
-That is up to you; use something from the Python standard library, or the
-'requests' package, or something asynchronous, whatever.
