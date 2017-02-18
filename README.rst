@@ -74,7 +74,7 @@ API; such as a API-specific request parameter (room size).
 Besides the template mechanism outlined here, the Regular YAML anchor/alias
 mechanism can of course be used as well.
 
-To generate actual HTTP requests, the API definitions can be parametrized.
+The API definitions can also be parametrized at run-time when making requests.
 For example, the API parser accepts an optional context argument that is
 simply a dictionary that is mapped against all the parameter names found in
 the API templates or operations. So in the above example it would be
