@@ -74,6 +74,8 @@ API; such as a API-specific request parameter (room size).
 Besides the template mechanism outlined here, the Regular YAML anchor/alias
 mechanism can of course be used as well.
 
+**Simple parametrization**
+
 The API definitions can also be parametrized at run-time when making requests.
 For example, the API parser accepts an optional context argument that is
 simply a dictionary that is mapped against all the parameter names found in
@@ -94,6 +96,8 @@ the rooms::
 The API for single or double rooms would then be chosen at runtime by passing a
 context, either ``{"size":"single"}`` or ``{"size": "double"}``. The parser would
 fill the room size into the API spec.
+
+**Jinja parametrization**
 
 Jinja2 templating can also be used anywhere within the YAML document. The same
 context is passed to Jinja. The above example could thus be written::
