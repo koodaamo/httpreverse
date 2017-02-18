@@ -82,7 +82,7 @@ the rooms::
           size:
 
 The API for single or double rooms would then be chosen at runtime by passing a
-context, either `{"size":"single"}` or `{"size": "double"}`. The parser would
+context, either ``{"size":"single"}`` or ``{"size": "double"}``. The parser would
 fill the room size into the API spec.
 
 Jinja2 templating can also be used anywhere within the YAML document. The same
@@ -98,7 +98,7 @@ context is passed to Jinja. The above example could thus be written::
         params:
           size: {{roomsize}}
 
-Assuming a context `{"roomsize":"single"}`, we'd then have an API for querying
+Assuming a context ``{"roomsize":"single"}``, we'd then have an API for querying
 single rooms. Jinja templates can also be used to assign complex Python data
 structures to the API. For example::
 
@@ -114,7 +114,7 @@ structures to the API. For example::
         type: application/json
   
 The parser could then be called with a context that has both the room size and
-occupant names: `{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}`,
+occupant names: ``{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}``,
 to define a payload and have it encoded into JSON. XML is also supported.
 
 Note that this package does NOT make HTTP requests using some client library.
