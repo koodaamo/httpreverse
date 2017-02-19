@@ -102,9 +102,9 @@ variation::
 Two different API operations would be generated, such as with this code, assuming
 the api spec has been read into a string variable called 'yamlsource':
 
-    >>> from httpreverse import expand_jinja
-    >>> expanded = expand_jinja(yamlsource, context={"sizes":["single", "double"]})
-    >>>
+>>> from httpreverse import expand_jinja
+>>> expanded = expand_jinja(yamlsource, context={"sizes":["single", "double"]})
+>>>
 
 For blunt copying of parts of the YAML document to another place, the standard
 YAML anchor/alias mechanism can of course be used as well.
@@ -149,10 +149,10 @@ specifications into a common template, referred to from the actual specs::
 
 Here's how to apply the request/response template in Python:
 
-    >>> from httpreverse import apply_template
-    >>> api = yaml.load(yamlsource)
-    >>> applied = apply_template(api["list-doublerooms"])
-    >>>
+>>> from httpreverse import apply_template
+>>> api = yaml.load(yamlsource)
+>>> applied = apply_template(api["list-doublerooms"])
+>>>
 
 **Simple parametrization**
 
@@ -176,10 +176,10 @@ listing the rooms::
 By passing either ``{"size":"single"}`` or ``{"size": "double"}`` as context,
 room size values would then be assigned:
 
-    >>> from httpreverse import parametrize
-    >>> api = yaml.load(yamlsource)
-    >>> parametrized = parametrize(api["list-rooms"], context={"size":single})
-    >>>
+>>> from httpreverse import parametrize
+>>> api = yaml.load(yamlsource)
+>>> parametrized = parametrize(api["list-rooms"], context={"size":single})
+>>>
 
 More complex parametrizations are possible using the same simple mechanism::
 
