@@ -56,7 +56,7 @@ single and double rooms reservations, respectively::
 
       response:
         type: application/json
-        parser: hotelapi.parseresponse
+        parser: hotelapi.util:parseresponse
 
     list-doublerooms:
       label: List double room reservations
@@ -199,6 +199,16 @@ The context would then have to include both the room size and occupants, ie.
 
 Consult the YAML documentation for more on what kind of data structures are
 possible to express.
+
+**Request generator and response parser loading**
+
+There are two convenience functions, ``_load_generator`` for loading the
+request generator and ``_load_parser`` for loading the response parser:
+
+>>> from httpreverse import _load_parser
+>>> api = yaml.load(yamlsource)
+>>> parser = _load_parser(api["list-rooms"])
+>>>
 
 **Recommended API operations spec generation and use**
 
