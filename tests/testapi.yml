@@ -1,0 +1,59 @@
+label: Hotel API
+description: An API to check room reservations
+
+templates:
+
+  roomapi:
+    request:
+      method: GET
+      path: /hotel/reservations
+    response:
+      type: application/json
+      parser: hotelapi.parseresponse
+
+operations:
+
+  list-singlerooms:
+    label: List single room reservations
+    description: List all reserved single rooms
+    template: roomapi
+    request:
+      params:
+        size: single
+
+  list-doublerooms:
+    label: List double room reservations
+    description: List all reserved double rooms
+    template: roomapi
+    request:
+      params:
+        size: double
+
+  list-rooms:
+    label: List room reservations
+    description: List reserved rooms
+    template: roomapi
+    request:
+      params:
+        size:
+
+  {% for size in sizes %}
+
+  list-{{size}}-rooms:
+    label: List {{size}} room reservations
+    description: List all reserved {{size}} rooms
+    template: roomapi
+    request:
+      params:
+        size: {{size}}
+
+  {% endfor %}
+
+  add-reservation:
+    label: Add reservation
+    description: Add a room reservation
+    template: roomapi
+    request:
+      method: POST
+      body: {"size": $roomsize, "customers": $customers}
+      type: application/json

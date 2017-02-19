@@ -2,19 +2,18 @@
 httpreverse
 ===============================
 
-
 .. image:: https://img.shields.io/pypi/v/httpreverse.svg
         :target: https://pypi.python.org/pypi/httpreverse
 
-Reverse-engineer legacy HTTP APIs.
+Tool to help reverse-engineer legacy HTTP APIs.
 
 Rationale and scope
 --------------------
 
-This package was born of a need to wrap a lot of different kinds of existing,
-undocumented legacy HTTP APIs not following any kind of consistent, well
-planned design, and to add a little bit of documentation to have some idea
-what those legacy APIs do.
+This package was born of a need to be able to use multiple different kinds of
+existing, undocumented legacy HTTP APIs not following any kind of consistent,
+well planned design. It was also thought helpful to be able to add a little bit
+of documentation about what those legacy APIs do.
 
 This package is NOT meant for defining new APIs. Use e.g. Swagger for that.
 
@@ -23,17 +22,94 @@ creating new APIs from scratch and as such cater to a bit different use case.
 For example they tend to be geared toward the verbose. When reverse-engineering
 and documenting existing APIs, all the details are not that important. We just
 need to make it easy to use the APIs and be able to add an explanation of what
-they do, rather than documenting everything. The docs hopefully help to clarify
-the difference.
+they do, rather than documenting everything.
+
+The examples hopefully clarify the difference and some of the benefits of this
+package.
 
 Note that this package does NOT make HTTP requests using some client library.
 That is up to you; use something from the Python standard library, or the
 'requests' package, or something asynchronous, whatever.
 
-Example uses
--------------
+API specification examples
+------------------------
 
-An example templated API definition in YAML::
+**Simple example**
+
+An example API definition in YAML that specifies two operations for querying
+single and double rooms reservations, respectively::
+
+  label: Hotel API
+  description: An API to check room reservations
+
+  operations:
+
+    list-singlerooms:
+      label: List single room reservations
+      description: List all reserved single rooms
+
+      request:
+        method: GET
+        path: /hotel/reservations
+        params:
+          size: single
+
+      response:
+        type: application/json
+        parser: hotelapi.parseresponse
+
+    list-doublerooms:
+      label: List double room reservations
+      description: List all reserved double rooms
+
+      request:
+        method: GET
+        path: /hotel/reservations
+        params:
+          size: double
+
+      response:
+        type: application/json
+        parser: hotelapi.parseresponse
+
+This is similar to how many specification syntaxes express HTTP APIs. Clear,
+but often lots of boilerplate and repetition. Let's see how to save some
+effort.
+
+
+**Using Jinja templating for API spec expansion**
+
+The API document can be expanded using Jinja2 templating. Using our room
+reservation example, we could generate an API operation for each room size
+variation::
+
+  operations:
+
+    {% for size in sizes %}
+
+    list-{{size}}-rooms:
+      label: List {{size}} room reservations
+      description: List all reserved {{size}} rooms
+        request:
+          method: GET
+          path: /hotel/reservations
+          params:
+            size: {{size}}
+
+    {% endfor %}
+
+Given a context such as ``{"sizes":["single", "double"]}``, the
+template would generate the two different API operations.
+
+For blunt copying of parts of the YAML document to another place, the standard
+YAML anchor/alias mechanism can of course be used as well.
+
+**Templated request specifications**
+
+Besides Jinja templating, a custom templating mechanism is provided for request
+and response specification convenience. Here's an example with a ``roomapi``
+request that is used to move repetitive request and response specifications into
+a common template that is merely referred to from the actual specs::
 
   label: Hotel API
   description: An API to check room reservations
@@ -66,22 +142,17 @@ An example templated API definition in YAML::
         params:
           size: double
 
-In the above example, a template is defined and then used to specify
-two API operations that only need to specify some descriptive metadata,
-the template to use, and any template overrides specific to the particular
-API; such as a API-specific request parameter (room size).
-
-Besides the template mechanism outlined here, the Regular YAML anchor/alias
-mechanism can of course be used as well.
+The example illustrates how the request ``size`` parameter has been overriden
+in each of the operation specs.
 
 **Simple parametrization**
 
-The API definitions can also be parametrized at run-time when making requests.
-For example, the API parser accepts an optional context argument that is
-simply a dictionary that is mapped against all the parameter names found in
-the API templates or operations. So in the above example it would be
-possible to also have a single dynamically invoked operation for listing
-the rooms::
+The API definitions can also be parametrized for convenient run-time use. The
+parametrization function accepts an optional context argument that is simply
+a dictionary that is used to assign values to all the named parameters found
+in the operations. Parameters are prefixed with the dollar sign ('$'). So it
+would be possible to also specify a single dynamically invoked operation for
+listing the rooms::
 
   operations:
 
@@ -91,30 +162,11 @@ the rooms::
       template: roomapi
       request:
         params:
-          size:
+          size: $size
 
-The API for single or double rooms would then be chosen at runtime by passing a
-context, either ``{"size":"single"}`` or ``{"size": "double"}``. The parser would
-fill the room size into the API spec.
-
-**Jinja parametrization**
-
-Jinja2 templating can also be used anywhere within the YAML document. The same
-context is passed to Jinja. The above example could thus be written::
- 
-  operations:
-
-    list-rooms:
-      label: List room reservations
-      description: List reserved rooms
-      template: roomapi
-      request:
-        params:
-          size: {{roomsize}}
-
-Assuming a context ``{"roomsize":"single"}``, we'd then have an API for querying
-single rooms. Jinja templates can also be used to assign complex Python data
-structures to the API. For example::
+By passing either ``{"size":"single"}`` or ``{"size": "double"}`` as context,
+room size values would then be assigned. More complex parametrizations are
+possible using the same simple mechanism::
 
   operations:
 
@@ -124,9 +176,14 @@ structures to the API. For example::
       template: roomapi
       request:
         method: POST
-        body: {{ {"size": roomsize, "customers": customers} }}
+        body: {"size": $roomsize, "customers": $customers}
         type: application/json
-  
-The parser could then be called with a context that has both the room size and
-occupant names: ``{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}``,
-to define a payload and have it encoded into JSON. XML is also supported.
+
+The context would then have to include both the room size and occupants:
+``{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}``.
+
+Consult the YAML documentation for what kind of data structures are
+possible to express.
+
+If the request body is given and includes either 'json' or 'xml', the request
+body data structure can be converted into JSON or XML after parametrization.
