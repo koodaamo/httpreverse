@@ -2,6 +2,12 @@
 History
 =======
 
+0.3.0dev (unreleased)
+-----------------------
+
+* Implement request generator loading (issue #2)
+* Implement response parser loading (issue #1))
+
 0.2.0 (2017-02-19)
 ------------------
 

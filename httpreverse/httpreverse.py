@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from importlib import import_module
 from collections import ChainMap
 import yaml
 import jinja2
@@ -74,3 +75,45 @@ def parametrize(opspec, context={}, implicit=False):
 
    return opspec
 
+
+def _load_callable(specstr):
+   "try to import and return mypkg.mymodule:mycallable"
+
+   try:
+      module, callable = specstr.split(":")
+   except:
+      raise Exception("bad specification string given (use pkg.module:callable syntax)")
+
+   try:
+      imported = import_module(module)
+   except ModuleNotFoundError:
+      raise Exception("no module '%s' found!" % module)
+
+   try:
+      callable = getattr(imported, callable)
+   except:
+      raise Exception("callable '%s' not found in module '%s'!" % (callable, module))
+
+   return callable
+
+
+def _load_parser(opspec, assign=True):
+   "parse & load and (by default) assign response parser callable, if found"
+
+   parser = _load_callable(opspec["response"]["parser"])
+
+   if assign:
+      opspec["response"]["parser"] = parser
+
+   return parser
+
+
+def _load_generator(opspec, assign=True):
+   "parse & load and (by default) assign request generator callable, if found"
+
+   generator = _load_callable(opspec["request"]["generator"])
+
+   if assign:
+      opspec["request"]["generator"] = generator
+
+   return generator
