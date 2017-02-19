@@ -17,7 +17,7 @@ test_requirements = [
 
 setup(
     name='httpreverse',
-    version='0.2.0',
+    version='0.3.0dev0',
     description="Reverse-engineer legacy HTTP APIs",
     long_description=readme + '\n\n' + history,
     author="Petri Savolainen",
