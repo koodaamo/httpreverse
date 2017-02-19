@@ -113,8 +113,8 @@ YAML anchor/alias mechanism can of course be used as well.
 
 Besides Jinja templating, a custom templating mechanism is provided for request
 and response specification convenience. Here's an example with a ``roomapi``
-request that is used to move repetitive request and response specifications into
-a common template that is referred to from the actual specs::
+request/response template that is used to move repetitive request and response
+specifications into a common template, referred to from the actual specs::
 
   label: Hotel API
   description: An API to check room reservations
