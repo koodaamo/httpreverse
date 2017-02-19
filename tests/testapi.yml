@@ -1,6 +1,11 @@
 label: Hotel API
 description: An API to check room reservations
 
+contexts:
+  roomapi:
+    size: double
+    customers: ["John Doe", "Jane Doe"]
+
 templates:
 
   roomapi:
@@ -24,10 +29,11 @@ operations:
   list-doublerooms:
     label: List double room reservations
     description: List all reserved double rooms
+    context: roomapi
     template: roomapi
     request:
       params:
-        size: double
+        size: $size
 
   list-rooms:
     label: List room reservations
@@ -52,8 +58,9 @@ operations:
   add-reservation:
     label: Add reservation
     description: Add a room reservation
+    context: roomapi
     template: roomapi
     request:
       method: POST
-      body: {"size": $roomsize, "customers": $customers}
+      body: {"size": $size, "customers": $customers}
       type: application/json

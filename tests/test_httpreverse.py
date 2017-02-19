@@ -10,7 +10,7 @@ Tests for `httpreverse` module.
 
 import sys, os, unittest
 import yaml
-from httpreverse import expand_jinja, apply_templates, parametrize
+from httpreverse import expand_jinja, apply_template, parametrize
 
 
 class Test01_JinjaExpansion(unittest.TestCase):
@@ -43,10 +43,12 @@ class Test02_TemplateApplication(unittest.TestCase):
       self.context = {"sizes": ["family", "suite"]}
       self.expanded = expand_jinja(self.source, context=self.context)
       self.parsed = yaml.load(self.expanded)
+      self.templates = self.parsed["templates"]
 
-   def test1_applytemplates(self):
-      operations = apply_templates(self.parsed, self.context)
-      for opname, opspec in operations.items():
+   def test1_applytemplate_for_all(self):
+      for opname, opspec in self.parsed["operations"].items():
+         testop = apply_template(self.parsed["operations"][opname], templates=self.templates)
+         opspec = apply_template(testop, self.templates)
          assert "response" in opspec and "json" in opspec["response"].get("type", "")
 
 
@@ -59,10 +61,29 @@ class Test03_Parametrization(unittest.TestCase):
       self.context = {"sizes": ["family", "suite"]}
       self.expanded = expand_jinja(self.source, context=self.context)
       self.parsed = yaml.load(self.expanded)
-      self.templated = apply_templates(self.parsed, self.context)
+      self.templates = self.parsed["templates"]
+      self.contexts = self.parsed["contexts"]
 
-   def test1_parametrize(self):
-      context = {"roomsize":"double", "customers":["John Doe", "Jane Doe"]}
-      ops = parametrize(self.templated, context=context)
-      expected = {"size": "double", "customers": ["John Doe", "Jane Doe"]}
-      assert ops["add-reservation"]["request"]["body"] == expected
+   def test1_explicit_parametrization(self):
+      testopname = "add-reservation"
+      testop = apply_template(self.parsed["operations"][testopname], templates=self.templates)
+      testcontext = {"size":"double", "customers":["John Doe", "Jane Doe"]}
+      parametrized = parametrize(testop, context=testcontext)
+      assert parametrized["request"]["body"] == testcontext
+
+   def test2_parametrize_from_static_context(self):
+      testopname = "add-reservation"
+      testop = apply_template(self.parsed["operations"][testopname], templates=self.templates)
+      testcontext = self.contexts[testop["context"]]
+      parametrized = parametrize(testop, context=testcontext)
+      assert parametrized["request"]["body"] == testcontext
+
+   def test3_parametrize_partially_from_static_context_nofail(self):
+      "can handle partial parametrization from larger static context"
+      testopname = "list-doublerooms"
+      testop = apply_template(self.parsed["operations"][testopname], templates=self.templates)
+      testcontext = self.contexts[testop["context"]]
+      parametrized = parametrize(testop, context=testcontext)
+      assert parametrized["request"]["params"]["size"] == testcontext["size"]
+
+

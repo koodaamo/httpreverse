@@ -72,9 +72,10 @@ single and double rooms reservations, respectively::
         type: application/json
         parser: hotelapi.parseresponse
 
+
 This is similar to how many specification syntaxes express HTTP APIs. Clear,
-but often lots of boilerplate and repetition. Let's see how to save some
-effort.
+but often lots of boilerplate and repetition. Parses into a plain dict using
+PyYaml as-is. Now let's see how to save some effort.
 
 
 **Using Jinja templating for API spec expansion**
@@ -98,8 +99,12 @@ variation::
 
     {% endfor %}
 
-Given a context such as ``{"sizes":["single", "double"]}``, the
-template would generate the two different API operations.
+Two different API operations would be generated, such as with this code, assuming
+the api spec has been read into a string variable called 'yamlsource':
+
+    >>> from httpreverse import expand_jinja
+    >>> expanded = expand_jinja(yamlsource, context={"sizes":["single", "double"]})
+    >>>
 
 For blunt copying of parts of the YAML document to another place, the standard
 YAML anchor/alias mechanism can of course be used as well.
@@ -109,7 +114,7 @@ YAML anchor/alias mechanism can of course be used as well.
 Besides Jinja templating, a custom templating mechanism is provided for request
 and response specification convenience. Here's an example with a ``roomapi``
 request that is used to move repetitive request and response specifications into
-a common template that is merely referred to from the actual specs::
+a common template that is referred to from the actual specs::
 
   label: Hotel API
   description: An API to check room reservations
@@ -142,8 +147,12 @@ a common template that is merely referred to from the actual specs::
         params:
           size: double
 
-The example illustrates how the request ``size`` parameter has been overriden
-in each of the operation specs.
+Here's how to apply the request/response template in Python:
+
+    >>> from httpreverse import apply_template
+    >>> api = yaml.load(yamlsource)
+    >>> applied = apply_template(api["list-doublerooms"])
+    >>>
 
 **Simple parametrization**
 
@@ -165,8 +174,14 @@ listing the rooms::
           size: $size
 
 By passing either ``{"size":"single"}`` or ``{"size": "double"}`` as context,
-room size values would then be assigned. More complex parametrizations are
-possible using the same simple mechanism::
+room size values would then be assigned:
+
+    >>> from httpreverse import parametrize
+    >>> api = yaml.load(yamlsource)
+    >>> parametrized = parametrize(api["list-rooms"], context={"size":single})
+    >>>
+
+More complex parametrizations are possible using the same simple mechanism::
 
   operations:
 
@@ -179,11 +194,17 @@ possible using the same simple mechanism::
         body: {"size": $roomsize, "customers": $customers}
         type: application/json
 
-The context would then have to include both the room size and occupants:
+The context would then have to include both the room size and occupants, ie.
 ``{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}``.
 
-Consult the YAML documentation for what kind of data structures are
+Consult the YAML documentation for more on what kind of data structures are
 possible to express.
 
-If the request body is given and includes either 'json' or 'xml', the request
-body data structure can be converted into JSON or XML after parametrization.
+**Recommended API operations spec generation and use**
+
+Typically, when using httpreverse to e.g. make http requests using
+whatever http client you have, you might want to first run just the  Jinja expansion
+first and parse the resulting YAML string. Then, apply the request/response templates
+for the operations you expect to be using (or maybe all of them). Keep a copy of the
+the result. Finally, for each HTTP request, just parametrize the API operation being
+used and fire away!

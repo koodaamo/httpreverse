@@ -4,4 +4,4 @@ __author__ = """Petri Savolainen"""
 __email__ = 'petri@koodaamo.fi'
 __version__ = '0.1.0'
 
-from .httpreverse import expand_jinja, apply_templates, parametrize
+from .httpreverse import expand_jinja, apply_template, parametrize
