@@ -34,6 +34,8 @@ That is up to you; use something from the Python standard library, or the
 API specification examples
 ------------------------
 
+Note: these examples are illustrative. For working examples, see the tests.
+
 **Simple example**
 
 An example API definition in YAML that specifies two operations for querying

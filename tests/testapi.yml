@@ -14,7 +14,7 @@ templates:
       path: /hotel/reservations
     response:
       type: application/json
-      parser: hotelapi.parseresponse
+      parser: httpreverse.util:parse_json
 
 operations:
 
