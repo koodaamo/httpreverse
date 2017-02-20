@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import re
+import json
 from importlib import import_module
 from collections import ChainMap
 import yaml
 import jinja2
+import xmltodict
 
 # parameter name extraction regexp
 prm_xpr = re.compile('(\\$([a-zA-Z0-9_])+)+')
@@ -54,7 +56,7 @@ def _parametrize_mapping(mapping, context):
    return mapping
 
 
-def parametrize(opspec, context={}, implicit=False):
+def parametrize(opspec, context={}, implicit=False, tojson=False, toxml=True):
    "assign parameter values, optionally implicitly using parameter names"
 
    # request parameters
@@ -72,6 +74,12 @@ def parametrize(opspec, context={}, implicit=False):
    rbody = opspec["request"].get("body")
    if rbody:
       _parametrize_mapping(rbody, context)
+
+      # convert body to the type given
+      if "json" in opspec["request"].get("type", "") and tojson:
+         opspec["request"]["body"] = json.dumps(rbody)
+      elif "xml" in opspec["request"].get("type", "") and toxml:
+         opspec["request"]["body"] = xmltodict.unparse(rbody)
 
    return opspec
 

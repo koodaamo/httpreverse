@@ -8,8 +8,9 @@ test_httpreverse
 Tests for `httpreverse` module.
 """
 
-import sys, os, unittest
+import sys, os, unittest, json
 import yaml
+import xmltodict
 from httpreverse import expand_jinja, apply_template, parametrize
 from httpreverse import _load_parser, _load_generator
 
@@ -114,3 +115,31 @@ class Test04_loader(BaseTestCase):
       opspec["request"]["generator"] = "httpreverse.util:parse_json"
       _load_generator(opspec, assign=True)
       assert opspec["request"]["generator"].__name__ == "parse_json"
+
+
+class Test05_body_conversion(BaseTestCase):
+
+   def setUp(self):
+      super().setUp()
+      self.expanded = expand_jinja(self.source, context=self.context)
+      self.parsed = yaml.load(self.expanded)
+
+      # this will be converted to JSON and XML
+      self.data = {"root": {"size": "double", "customer": ["John", "Jane"]}}
+
+      testopname = "list-singlerooms"
+      opspec = self.parsed["operations"][testopname]
+      self.opspec = apply_template(opspec, templates=self.parsed["templates"])
+      self.opspec["request"]["body"] = self.data
+
+   def test1_json_convert(self):
+      self.opspec["request"]["type"] = "application/json"
+      parametrize(self.opspec, tojson=True)
+      body = self.opspec["request"]["body"]
+      assert self.data == json.loads(body)
+
+   def test2_xml_convert(self):
+      self.opspec["request"]["type"] = "application/xml"
+      parametrize(self.opspec)
+      body = self.opspec["request"]["body"]
+      assert self.data == xmltodict.parse(body)

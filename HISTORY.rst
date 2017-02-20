@@ -7,6 +7,7 @@ History
 
 * Implement request generator loading (issue #2)
 * Implement response parser loading (issue #1))
+* Implement request conversion (issue #4)
 
 0.2.0 (2017-02-19)
 ------------------
