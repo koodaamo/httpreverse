@@ -82,7 +82,8 @@ def _load_callable(specstr):
    try:
       module, callable = specstr.split(":")
    except:
-      raise Exception("bad specification string given (use pkg.module:callable syntax)")
+      errmsg = "bad callable string '%s' given (syntax: pkg.module:callable)"
+      raise Exception(errmsg % specstr)
 
    try:
       imported = import_module(module)
