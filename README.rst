@@ -202,6 +202,12 @@ The context would then have to include both the room size and occupants, ie.
 Consult the YAML documentation for more on what kind of data structures are
 possible to express.
 
+Note that the response body can be converted to the given content type by
+passing ``tojson==True`` or ``toxml==True``. By default, JSON conversion is
+switched off because many tools automatically do the JSON conversion, whereas
+the XML conversion is enabled. This behavior may change so it's a good idea
+to control the conversion explicitly in your code.
+
 **Request generator and response parser loading**
 
 There are two convenience functions, ``_load_generator`` for loading the
