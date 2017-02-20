@@ -10,7 +10,8 @@ Tests for `httpreverse` module.
 
 import sys, os, unittest
 import yaml
-from httpreverse import expand_jinja, apply_template, parametrize, _load_parser
+from httpreverse import expand_jinja, apply_template, parametrize
+from httpreverse import _load_parser, _load_generator
 
 
 class BaseTestCase(unittest.TestCase):
@@ -101,3 +102,15 @@ class Test04_loader(BaseTestCase):
 
       _load_parser(opspec, assign=True)
       assert opspec["response"]["parser"].__name__ == "parse_json"
+
+   def test2_generator_loading(self):
+
+      # this is faked, but for testing purposes it's ok, it still tests
+      # _load_generator as it should
+
+      testopname = "list-singlerooms"
+      opspec = self.parsed["operations"][testopname]
+      opspec = apply_template(opspec, templates=self.parsed["templates"])
+      opspec["request"]["generator"] = "httpreverse.util:parse_json"
+      _load_generator(opspec, assign=True)
+      assert opspec["request"]["generator"].__name__ == "parse_json"
