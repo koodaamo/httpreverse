@@ -54,6 +54,9 @@ class Test02_TemplateApplication(unittest.TestCase):
 
 class Test03_Parametrization(unittest.TestCase):
 
+   def _get_expanded_testop(self, name):
+      return apply_template(self.parsed["operations"][name], templates=self.templates)
+
    def setUp(self):
       fpth = os.path.dirname(__file__) + os.sep + "testapi.yml"
       with open(fpth) as apifile:
@@ -66,14 +69,14 @@ class Test03_Parametrization(unittest.TestCase):
 
    def test1_explicit_parametrization(self):
       testopname = "add-reservation"
-      testop = apply_template(self.parsed["operations"][testopname], templates=self.templates)
+      testop = self._get_expanded_testop(testopname)
       testcontext = {"size":"double", "customers":["John Doe", "Jane Doe"]}
       parametrized = parametrize(testop, context=testcontext)
       assert parametrized["request"]["body"] == testcontext
 
    def test2_parametrize_from_static_context(self):
       testopname = "add-reservation"
-      testop = apply_template(self.parsed["operations"][testopname], templates=self.templates)
+      testop = self._get_expanded_testop(testopname)
       testcontext = self.contexts[testop["context"]]
       parametrized = parametrize(testop, context=testcontext)
       assert parametrized["request"]["body"] == testcontext
@@ -81,7 +84,7 @@ class Test03_Parametrization(unittest.TestCase):
    def test3_parametrize_partially_from_static_context_nofail(self):
       "can handle partial parametrization from larger static context"
       testopname = "list-doublerooms"
-      testop = apply_template(self.parsed["operations"][testopname], templates=self.templates)
+      testop = self._get_expanded_testop(testopname)
       testcontext = self.contexts[testop["context"]]
       parametrized = parametrize(testop, context=testcontext)
       assert parametrized["request"]["params"]["size"] == testcontext["size"]
