@@ -216,7 +216,6 @@ must be given thus:
     structured_param_type: json
     structured_body_type: json
 
-
 The above API snippet would specify that whenever a structured parameter
 or body value is encountered (such as a container or mapping), it will be
 marshalled to json. Simple values (strings, numbers etc) are used as-is.
@@ -233,9 +232,9 @@ request generator and ``_load_parser`` for loading the response parser:
 
 **Recommended API operations spec generation and use**
 
-Typically, when using httpreverse to e.g. make http requests using
-whatever http client you have, you might want to first run just the  Jinja expansion
-first and parse the resulting YAML string. Then, apply the request/response templates
-for the operations you expect to be using (or maybe all of them). Keep a copy of the
-the result. Finally, for each HTTP request, just parametrize the API operation being
-used and fire away!
+Typically, when using httpreverse to e.g. make http requests using whatever
+http client you have, you might want to first run just the Jinja expansion
+first and parse the resulting YAML string. Then, apply the request/response
+templates for the operations you expect to be using (or maybe all of them).
+Keep a copy of the the result. Finally, for each HTTP request, just parametrize
+the API operation being used, marshal parameters and body and fire away!
