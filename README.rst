@@ -182,7 +182,8 @@ room size values would then be assigned:
 
 >>> from httpreverse import parametrize
 >>> api = yaml.load(yamlsource)
->>> parametrized = parametrize(api["list-rooms"], context={"size":single})
+>>> operation = api["operations"]["list-rooms"]
+>>> parametrized = parametrize(operation, context={"size":single})
 >>>
 
 More complex parametrizations are possible using the same simple mechanism::
@@ -195,8 +196,9 @@ More complex parametrizations are possible using the same simple mechanism::
       template: roomapi
       request:
         method: POST
-        body: {"size": $roomsize, "customers": $customers}
-        type: application/json
+        body:
+          value: {"size": $roomsize, "customers": $customers}
+          type: application/json
 
 The context would then have to include both the room size and occupants, ie.
 ``{"roomsize":"double", "customers":["John Doe", "Jane Doe"]}``.
@@ -204,11 +206,20 @@ The context would then have to include both the room size and occupants, ie.
 Consult the YAML documentation for more on what kind of data structures are
 possible to express.
 
-Note that the response body can be converted to the given content type by
-passing ``tojson==True`` or ``toxml==True``. By default, JSON conversion is
-switched off because many tools automatically do the JSON conversion, whereas
-the XML conversion is enabled. This behavior may change so it's a good idea
-to control the conversion explicitly in your code.
+When a `type` + `value` is given for a parameter or body (as above), the
+value is automatically marshaled to the given type (json in above example).
+If a parameter or body is given directly (no type+value syntax), a default
+must be given thus:
+
+  defaults:
+
+    structured_param_type: json
+    structured_body_type: json
+
+
+The above API snippet would specify that whenever a structured parameter
+or body value is encountered (such as a container or mapping), it will be
+marshalled to json. Simple values (strings, numbers etc) are used as-is.
 
 **Request generator and response parser loading**
 
