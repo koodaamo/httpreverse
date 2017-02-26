@@ -1,10 +1,20 @@
 label: Hotel API
 description: An API to check room reservations
 
+
+defaults:
+
+  structured_param_type: json
+  structured_body_type: json
+
 contexts:
+
   roomapi:
     size: double
     customers: ["John Doe", "Jane Doe"]
+  note:
+    notetitle: This is note
+    notetext: A note related to the reservation
 
 templates:
 
@@ -61,6 +71,19 @@ operations:
     context: roomapi
     template: roomapi
     request:
+      required: [size, customers]
       method: POST
-      body: {"size": $size, "customers": $customers}
-      type: application/json
+      body:
+        type: application/json
+        value: {"size": $size, "customers": $customers}
+
+  add-note:
+    label: Add reservation note
+    description: Add a room reservation note
+    context: note
+    template: roomapi
+    request:
+      method: POST
+      params:
+        note: [$notetitle, $notetext]
+      body: $notetitle $notetext

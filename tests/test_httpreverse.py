@@ -12,6 +12,7 @@ import sys, os, unittest, json
 import yaml
 import xmltodict
 from httpreverse import expand_jinja, apply_template, parametrize
+from httpreverse import marshal_request_params, marshal_request_body
 from httpreverse import _load_parser, _load_generator
 
 
@@ -30,6 +31,7 @@ class BaseTestCase(unittest.TestCase):
 
 
 class Test01_JinjaExpansion(BaseTestCase):
+   "test API expansion using Jinja templating"
 
    def test1_expansion(self):
       "the Jinja syntax is expanded with given context"
@@ -44,6 +46,7 @@ class Test01_JinjaExpansion(BaseTestCase):
 
 
 class Test02_TemplateApplication(BaseTestCase):
+   "test request template system"
 
    def setUp(self):
       super().setUp()
@@ -52,12 +55,14 @@ class Test02_TemplateApplication(BaseTestCase):
       self.templates = self.parsed["templates"]
 
    def test1_applytemplate_for_all(self):
+      "the request remplates are expanded"
       for opname, opspec in self.parsed["operations"].items():
          opspec = apply_template(opspec, templates=self.templates)
          assert "response" in opspec and "json" in opspec["response"].get("type", "")
 
 
 class Test03_Parametrization(BaseTestCase):
+   "test API operation spec parametrization"
 
    def setUp(self):
       super().setUp()
@@ -67,18 +72,21 @@ class Test03_Parametrization(BaseTestCase):
       self.contexts = self.parsed["contexts"]
 
    def test1_explicit_parametrization(self):
+      "data structure is correctly parametrized"
       testopname = "add-reservation"
       testop = self._get_expanded_testop(testopname)
-      testcontext = {"size":"double", "customers":["John Doe", "Jane Doe"]}
-      parametrized = parametrize(testop, context=testcontext)
-      assert parametrized["request"]["body"] == testcontext
+      testcontext = {"customers":["John Doe", "Jane Doe"], "size":"double"}
+      parametrize(testop, context=testcontext)
+      result = testop["request"]["body"]["value"]
+      assert testop["request"]["body"]["value"] == testcontext
 
    def test2_parametrize_from_static_context(self):
+      "data structure is correctly parametrized from context embedded in API"
       testopname = "add-reservation"
       testop = self._get_expanded_testop(testopname)
       testcontext = self.contexts[testop["context"]]
       parametrized = parametrize(testop, context=testcontext)
-      assert parametrized["request"]["body"] == testcontext
+      assert parametrized["request"]["body"]["value"] == testcontext
 
    def test3_parametrize_partially_from_static_context_nofail(self):
       "can handle partial parametrization from larger static context"
@@ -88,8 +96,17 @@ class Test03_Parametrization(BaseTestCase):
       parametrized = parametrize(testop, context=testcontext)
       assert parametrized["request"]["params"]["size"] == testcontext["size"]
 
+   def test4_parametrize_two_variables(self):
+      "can replace $name1 $name2"
+      testopname = "add-note"
+      testop = self._get_expanded_testop(testopname)
+      testcontext = self.contexts[testop["context"]]
+      parametrized = parametrize(testop, context=testcontext)
+      assert parametrized["request"]["body"] == " ".join(testcontext.values())
+
 
 class Test04_loader(BaseTestCase):
+   "test loading of request generators and response parsers"
 
    def setUp(self):
       super().setUp()
@@ -118,28 +135,56 @@ class Test04_loader(BaseTestCase):
 
 
 class Test05_body_conversion(BaseTestCase):
+   "test body marshaling by setting body explicitly and then marshaling it"
 
    def setUp(self):
       super().setUp()
       self.expanded = expand_jinja(self.source, context=self.context)
       self.parsed = yaml.load(self.expanded)
 
-      # this will be converted to JSON and XML
-      self.data = {"root": {"size": "double", "customer": ["John", "Jane"]}}
-
+      # the test API operation
       testopname = "list-singlerooms"
       opspec = self.parsed["operations"][testopname]
       self.opspec = apply_template(opspec, templates=self.parsed["templates"])
-      self.opspec["request"]["body"] = self.data
 
-   def test1_json_convert(self):
-      self.opspec["request"]["type"] = "application/json"
-      parametrize(self.opspec, tojson=True)
-      body = self.opspec["request"]["body"]
-      assert self.data == json.loads(body)
+      # yes, neither the API spec nor the template has a body, we assign the body value
+      # explicitly in the test here, so that this will be converted (type is set by tests)
+      self.bodyvalue = {"root": {"size": "double", "customer": ["John", "Jane"]}}
+      self.opspec["request"]["body"] = {"value": self.bodyvalue}
 
-   def test2_xml_convert(self):
-      self.opspec["request"]["type"] = "application/xml"
-      parametrize(self.opspec)
-      body = self.opspec["request"]["body"]
-      assert self.data == xmltodict.parse(body)
+   def test1_body_json_marshal(self):
+      "request body is correctly marshalled to JSON"
+      self.opspec["request"]["body"]["type"] = "application/json"
+      marshal_request_body(self.opspec, self.parsed.get("defaults", {}))
+      result = self.opspec["request"]["body"]["value"]
+      assert self.bodyvalue == json.loads(result)
+
+   def test2_body_xml_marshal(self):
+      "request body is correctly marshalled to XML"
+      self.opspec["request"]["body"]["type"] = "application/xml"
+      marshal_request_body(self.opspec, self.parsed.get("defaults", {}))
+      result = self.opspec["request"]["body"]["value"] # this should now be XML ...
+      assert self.bodyvalue == xmltodict.parse(result)
+
+
+
+class Test06_params_marshaling(BaseTestCase):
+   "test params marshaling"
+
+   def setUp(self):
+      super().setUp()
+      self.expanded = expand_jinja(self.source, context=self.context)
+      self.parsed = yaml.load(self.expanded)
+
+      # the test API operation
+      testopname = "add-note"
+      opspec = self.parsed["operations"][testopname]
+      self.opspec = apply_template(opspec, templates=self.parsed["templates"])
+
+   def test1_param_json_marshal(self):
+      "request param is correctly marshalled to JSON"
+      context = self.parsed["contexts"][self.opspec["context"]]
+      parametrize(self.opspec, context=context)
+      marshal_request_params(self.opspec, self.parsed.get("defaults", {}))
+      result = self.opspec["request"]["params"]["note"]
+      assert self.opspec["request"]["params"]["note"] == result
