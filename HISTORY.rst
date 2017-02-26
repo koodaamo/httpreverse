@@ -2,6 +2,13 @@
 History
 =======
 
+0.4.0 (2017-02-26)
+-------------------
+
+* Handle arbitrary data structure parametrization
+* Implement parameter & body marshaling
+* Some backwards-incompatible API changes
+
 0.3.0 (2017-02-20)
 -------------------
 
