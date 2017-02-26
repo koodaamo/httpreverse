@@ -130,8 +130,6 @@ def marshal_request_params(opspec, defaults):
 def marshal_request_body(opspec, defaults):
    "convert body to the specified type"
 
-   import pdb; pdb.set_trace()
-
    default = defaults.get("structured_body_type", "")
    request = opspec["request"]
    body = request.get("body", "")
