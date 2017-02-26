@@ -153,7 +153,9 @@ Here's how to apply the request/response template in Python:
 
 >>> from httpreverse import apply_template
 >>> api = yaml.load(yamlsource)
->>> applied = apply_template(api["list-doublerooms"])
+>>> templates = api["templates"]
+>>> operation = api["operations"]["list-doublerooms"]
+>>> applied = apply_template(operation, templates)
 >>>
 
 **Simple parametrization**
