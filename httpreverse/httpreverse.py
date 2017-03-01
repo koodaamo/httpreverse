@@ -87,7 +87,7 @@ def istypedvalue(v):
       return False
 
 
-def ismarshallable(v):
+def is_structure(v):
    return True if isinstance(v, (Mapping, MutableSequence, tuple)) else False
 
 
@@ -143,7 +143,7 @@ def marshal_request_body(opspec, defaults):
 
 def marshal(opspec, defaults):
    marshal_request_params(opspec, defaults)
-   if ismarshallable(opspec["request"].get("body")):
+   if is_structure(opspec["request"].get("body")):
       marshal_request_body(opspec, defaults)
 
 
