@@ -104,6 +104,24 @@ class Test03_Parametrization(BaseTestCase):
       parametrized = parametrize(testop, context=testcontext)
       assert parametrized["request"]["body"] == " ".join(testcontext.values())
 
+   def test5_parametrize_access_listelement(self):
+      "$param/0 works"
+      testopname = "list-rooms"
+      testop = self._get_expanded_testop(testopname)
+      testop["request"]["params"]["testparam"] = "$customers/0"
+      testcontext = {"customers":["John Doe", "Jane Doe"], "size":"double"}
+      parametrize(testop, context=testcontext)
+      assert testop["request"]["params"]["testparam"] == "John Doe"
+
+   def test6_parametrize_access_mapelement(self):
+      "$param/name works; note that 'name' must not contain whitespaces"
+      testopname = "list-rooms"
+      testop = self._get_expanded_testop(testopname)
+      testop["request"]["params"]["testparam"] = "$customers/JohnDoe"
+      testcontext = {"customers":{"JohnDoe":True, "Jane Doe":False}, "size":"double"}
+      parametrize(testop, context=testcontext)
+      assert testop["request"]["params"]["testparam"] == True
+
 
 class Test04_loader(BaseTestCase):
    "test loading of request generators and response parsers"

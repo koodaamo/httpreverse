@@ -9,8 +9,8 @@ import jinja2
 import xmltodict
 
 # parameter (name) extraction regexps
-prm_xpr = re.compile('(\$)[\w_]+') # used to get all parameters
-single_xpr = re.compile(" *\$[\w_]+ *$") # used to check if value is single parameter
+prm_xpr = re.compile('(\$)[\w_/]+') # used to get all parameters
+single_xpr = re.compile(" *\$[\w_/]+ *$") # used to check if value is single parameter
 
 
 def expand_jinja(apispecstr, context):
@@ -46,6 +46,31 @@ def apply_template(opspec, templates):
    return templated
 
 
+def is_structure(v):
+   return True if isinstance(v, (Mapping, MutableSequence, tuple)) else False
+
+
+def _retrieve_value(context, parameter):
+   "return a value from context, given by parameter string"
+
+   names = [n for n in parameter.split('/') if n]
+
+   while True:
+      name = names.pop(0)
+
+      if name.isnumeric():
+         name = int(name)
+      try:
+         value = context.__getitem__(name)
+      except:
+         raise Exception("could not fetch value for '%s'" % parameter)
+
+      if names and is_structure(value):
+         return _retrieve_value(value, '/'.join(names))
+      else:
+         return value
+
+
 def _substitute(data, context):
    "traverse the data structure and do parameter substitution"
 
@@ -56,7 +81,7 @@ def _substitute(data, context):
    elif isinstance(data, str):
       # single replacable parameter name in string
       if re.match(single_xpr, data):
-         return context[data.strip().lstrip('$')]
+         return _retrieve_value(context, data.strip().lstrip('$'))
       # multiple parameter names in string
       else:
          return re.sub(prm_xpr, lambda m: context[m.group()[1:]], data)
@@ -64,11 +89,12 @@ def _substitute(data, context):
       return data
 
    for k, v in iterable:
+
       # try to substitute any string parts starting with marker
       if type(v) == str:
          # if the value is a single replacable, replace from context directly
          if re.match(single_xpr, v):
-            data[k] = context[v.strip().lstrip('$')]
+            data[k] = _retrieve_value(context, v.strip().lstrip('$'))
          # if there are multiple replacables, they must be strings so do re.sub
          else:
             data[k] = re.sub(prm_xpr, lambda m: context[m.group()[1:]], v)
@@ -77,6 +103,7 @@ def _substitute(data, context):
          _substitute(v, context) # RECURSE
       else:
          pass
+
    return data
 
 
@@ -85,10 +112,6 @@ def istypedvalue(v):
       return True
    else:
       return False
-
-
-def is_structure(v):
-   return True if isinstance(v, (Mapping, MutableSequence, tuple)) else False
 
 
 def marshal_typed_value(value, default):

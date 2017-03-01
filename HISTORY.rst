@@ -2,6 +2,13 @@
 History
 =======
 
+0.5.0 (unreleased)
+------------------
+
+* Parametrization enhancements for accessing
+  content structure sub-elements using a slash
+  character in parameter (issue #8)
+
 0.4.0 (2017-02-26)
 -------------------
 
