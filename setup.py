@@ -23,11 +23,6 @@ setup(
     author="Petri Savolainen",
     author_email='petri@koodaamo.fi',
     url='https://github.com/koodaamo/httpreverse',
-    packages=[
-        'httpreverse',
-    ],
-    package_dir={'httpreverse':
-                 'httpreverse'},
     include_package_data=True,
     install_requires=requirements,
     license="GNU General Public License v3",

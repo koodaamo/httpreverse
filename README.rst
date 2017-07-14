@@ -27,9 +27,12 @@ they do, rather than documenting everything.
 The examples hopefully clarify the difference and some of the benefits of this
 package.
 
-Note that this package does NOT make HTTP requests using some client library.
-That is up to you; use something from the Python standard library, or the
-'requests' package, or something asynchronous, whatever.
+This package also provides a simple asyncio client for running the defined HTTP
+requests.
+
+It'd also be easy to use something from the Python standard library, or e.g. the
+'requests' library, as a client.
+
 
 API specification examples
 ------------------------
