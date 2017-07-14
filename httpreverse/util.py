@@ -2,7 +2,6 @@ import json
 from collections import ChainMap
 from xml.etree import ElementTree
 
-from .client import AsyncioAPIClient
 from .httpreverse import apply_template, parametrize, marshal
 
 
